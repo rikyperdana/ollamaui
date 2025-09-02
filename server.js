@@ -3,14 +3,16 @@ io      = require('socket.io'),
 express = require('express'),
 userAPI = require('./deps/user.js'),
 crudAPI = require('./deps/crud.js'),
+ollamaAPI = require('./deps/ollama.js')
 
 app = express()
   .use(express.static('public'))
   .listen(3000),
 
 IO = io(app)
-
 userAPI(IO)
+crudAPI(IO) // crudAPI is for prototyping purpose only
 
-// crudAPI is for prototyping purpose only
-crudAPI(IO)
+import('ollama').then(
+  ({Ollama}) => ollamaAPI(IO)
+)
