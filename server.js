@@ -11,8 +11,8 @@ app = express()
 
 IO = io(app)
 userAPI(IO)
-crudAPI(IO) // crudAPI is for prototyping purpose only
+crudAPI(IO) // prototyping purpose only
 
 import('ollama').then(
-  ({Ollama}) => ollamaAPI(IO)
+  ({Ollama}) => ollamaAPI(IO, new Ollama)
 )
