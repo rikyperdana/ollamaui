@@ -3,8 +3,8 @@ m.mount(document.body, mitGen({
   brand: {name: 'home', full: 'Ollama'},
   start: {
     chat: {
-      full: 'Conversation',
-      icon: 'comment'
+      full: 'Conversation', icon: 'comment',
+      comp: comps.conversation
     }
   },
   end: userMenu
