@@ -17,7 +17,8 @@ comps.conversation = x => [
   m(autoForm({
     id: 'conversation',
     schema: {
-      'prompt': {
+      'content': {
+        label: 'Message',
         type: String, autoform: {
           type: 'textarea',
           placeholder: 'start asking anything'
@@ -30,9 +31,12 @@ comps.conversation = x => [
         model: 'gemma3:270m',
         messages: [{
           role: 'user',
-          content: doc.prompt
+          content: doc.content
         }]
-      }, console.log
+      }, doc => doc.prompt && withAs({
+        threads: JSON.parse(localStorage.threads || '[]'),
+        query: {...doc, role: 'user', requestTime: _.now()}
+      }, console.log)
     )
   }))
 ]
