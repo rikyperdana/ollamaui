@@ -39,13 +39,13 @@ comps.conversation = x => [
         {model: 'gemma3:270m', messages: [{
           role: 'user', content: doc.message
         }]},
-        response => [ // add response to the thread
+        response => [
           localStorage.setItem('threads', JSON.stringify([
-            ...withAs( // but omit the last one
+            ...withAs( // omit the early response
               JSON.parse(localStorage.threads || '[]'),
               threads => threads.slice(0, threads.length-1)
             ),
-            {
+            { // add response to the thread
               message: response.message.content,
               role: 'assistant', requestTime: _.now()
             }
@@ -53,25 +53,6 @@ comps.conversation = x => [
           m.redraw()
         ]
       )
-    ],
-    actionX: doc => io('/ollama').emit('ask',
-      {
-        model: 'gemma3:270m',
-        messages: [{
-          role: 'user',
-          content: doc.content
-        }]
-      },
-      resp => [
-        // add user prompt to threads
-        localStorage.setItem('threads', JSON.stringify([
-          ...JSON.parse(localStorage.threads || '[]'),
-          {...doc, role: 'user', requestTime: _.now()},
-          // say that it's thinking
-          {message: "Let me think", role: 'assistant'}
-        ]))
-        // finally add the ai response
-      ]
-    )
+    ]
   }))
 ]
