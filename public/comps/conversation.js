@@ -40,7 +40,7 @@ comps.conversation = x => [
           ...withAs(
             JSON.parse(localStorage.threads || '[]'),
             thread => thread.slice(0, thread.length-1)
-          ),
+          ).map(i => _.assign(i, {content: i.message})),
           {role: 'user', content: doc.message}
         ]},
         response => [
