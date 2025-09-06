@@ -36,14 +36,18 @@ comps.conversation = x => [
       ])),
       // call an ollama model
       io('/ollama').emit('ask',
-        {model: 'gemma3:270m', messages: [{
-          role: 'user', content: doc.message
-        }]},
+        {model: 'gemma3:270m', messages: [
+          ...withAs(
+            JSON.parse(localStorage.threads || '[]'),
+            thread => thread.slice(0, thread.length-1)
+          ),
+          {role: 'user', content: doc.message}
+        ]},
         response => [
           localStorage.setItem('threads', JSON.stringify([
-            ...withAs( // omit the early response
+            ...withAs(
               JSON.parse(localStorage.threads || '[]'),
-              threads => threads.slice(0, threads.length-1)
+              thread => thread.slice(0, thread.length-1)
             ),
             { // add response to the thread
               message: response.message.content,
@@ -53,6 +57,19 @@ comps.conversation = x => [
           m.redraw()
         ]
       )
+    ],
+    buttons: localStorage.threads && [
+      {label: 'Reset', opt: {
+        class: 'is-warning',
+        onclick: e => confirm('Are you sure?') && [
+          e.preventDefault(),
+          localStorage.removeItem('threads'),
+          m.redraw(), scroll(0, 0)
+        ]
+      }},
+      {label: 'Simpan', opt: {
+        class: 'is-success',
+      }},
     ]
   }))
 ]
