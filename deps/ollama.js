@@ -1,7 +1,10 @@
 module.exports = (app, Ollama) =>
   app.of('/ollama')
-  .on('connection', socket =>
+  .on('connection', socket => [
     socket.on('ask', (data, cb) =>
       Ollama.chat(data).then(cb)
+    ),
+    socket.on('list', cb =>
+      Ollama.list().then(cb)
     )
-  )
+  ])

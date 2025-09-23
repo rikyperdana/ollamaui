@@ -1,5 +1,12 @@
 comps.conversation = x => [
-  m('h3', "Let's chat.."),
+  m('h3', {
+    oncreate: x =>
+      io('/ollama').emit('list', ({models}) =>
+        localStorage.setItem(
+          'model_list', JSON.stringify(models)
+        )
+      )
+  }, "Let's chat.."),
 
   // Threads of interactions
   JSON.parse(localStorage.threads || '[]')
@@ -17,7 +24,15 @@ comps.conversation = x => [
   m(autoForm({
     id: 'conversation',
     schema: {
-      'message': {
+      model: {
+        type: String, autoform: {
+          type: 'select', options: x =>
+          JSON.parse(localStorage.model_list).map(
+            i => ({value: i.name, label: i.name})
+          )
+        }
+      },
+      message: {
         label: 'Message',
         type: String, autoform: {
           type: 'textarea',
@@ -26,6 +41,12 @@ comps.conversation = x => [
       }
     },
     submit: {value: 'Send'},
+    doc: ifit(
+      localStorage.threads,
+      threads => _.pick(_.last(
+        JSON.parse(threads)
+      ), 'model')
+    ),
     action: doc => [
       // add prompt to thread
       localStorage.setItem('threads', JSON.stringify([
@@ -36,7 +57,7 @@ comps.conversation = x => [
       ])),
       // call an ollama model
       io('/ollama').emit('ask',
-        {model: 'gemma3:270m', messages: [
+        {model: doc.model, messages: [
           ...withAs(
             JSON.parse(localStorage.threads || '[]'),
             thread => thread.slice(0, thread.length-1)
@@ -51,7 +72,8 @@ comps.conversation = x => [
             ),
             { // add response to the thread
               message: response.message.content,
-              role: 'assistant', requestTime: _.now()
+              role: 'assistant', requestTime: _.now(),
+              model: doc.model
             }
           ])),
           m.redraw()
